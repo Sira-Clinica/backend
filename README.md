@@ -1,7 +1,7 @@
-#🏥 Backend - Sistema de Detección de enferemedades respiratorias Clínico (FastAPI + SQLModel + JWT + ML random forest+ scikit learn)
+# 🏥 Backend - Sistema de Detección de enferemedades respiratorias Clínico (FastAPI + SQLModel + JWT + ML random forest+ scikit learn)
 #Este es el backend de un sistema de DETECCIÓN clínica desarrollado con FastAPI. Incluye autenticación y autorización por roles (ADMIN, MEDIC, PATIENT), envios de email (senders y listener), gestión de usuarios, médicos, citas médicas, historial clínico y carga de imágenes.
 
-#🚀 Características
+# 🚀 Características
 -🔐 Autenticación con JWT
 -👤 Gestión de usuarios y médicos
 -📅 Envio de datos clinicos para detección de Machine Learning
@@ -19,7 +19,7 @@
 -Uvicorn
 -Pydantic
 -PyProject con PEP 621
-#📦 Requisitos previos
+# 📦 Requisitos previos
 Python 3.10+
 Git
 Tener configurado uvicorn y entorno virtual (opcional pero recomendado)
