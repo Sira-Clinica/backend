@@ -1,7 +1,11 @@
+
 from fastapi import HTTPException, status
 from sqlmodel import Session
 
+from backend_clinico.security.domain.model.profile import Profile
+
 from backend_clinico.security.domain.model.user import User
+from backend_clinico.security.domain.repository.profile_repository import ProfileRepository
 from backend_clinico.security.domain.repository.role_repository import RoleRepository
 from backend_clinico.security.domain.repository.user_repository import UserRepository
 from backend_clinico.security.infrastructure.jwt_handler import create_access_token
@@ -44,6 +48,7 @@ class AuthService:
     def register_user(db: Session, data: UserRegister) -> User:
         user_repo = UserRepository()
         role_repo = RoleRepository()
+        profile_repo = ProfileRepository()
 
         # Verificar que el rol exista
         role = role_repo.get_by_name(db, data.role_name)
@@ -62,5 +67,25 @@ class AuthService:
             enabled=True,
             role_id=role.id
         )
+        user_repo.create(db, new_user)
 
-        return user_repo.create(db, new_user)
+        # Crear el perfil con datos básicos (los demás quedan NULL)
+        profile = Profile(
+            user_id=new_user.id,
+            full_name=data.full_name,
+            email=data.email,
+            phone=None,        # Se puede llenar luego
+            area=data.area,    # Si viene desde el registro
+            description=None,
+            idiomas=None,
+            redes=None,
+            formacion=None,
+            horarios=None,
+            cmp=None,
+            consultorio=None,
+            sede=None,
+            experiencia=None
+        )
+        profile_repo.create(db, profile)
+
+        return new_user

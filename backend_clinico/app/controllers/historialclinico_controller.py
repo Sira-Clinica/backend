@@ -8,7 +8,7 @@ from backend_clinico.security.infrastructure.auth_dependencies import get_curren
 
 historial_router = APIRouter(prefix="/historial", tags=["Historial Clínico"])
 
-@historial_router.get("/{dni}", summary="Obtener historial clínico completo por DNI")
+@historial_router.get("/{dni}", summary="Obtener historial clínico completo por DNI (doctor y admin)")
 def obtener_historial_clinico(
     dni: str,
     db: Session = Depends(get_db),

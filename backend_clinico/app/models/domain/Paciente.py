@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -5,7 +6,7 @@ from sqlmodel import SQLModel, Field, Relationship
 class Paciente(SQLModel, table=True):
     __tablename__ = "pacientes"
 
-    id: Optional[int] = Field(default=None, primary_key=True, index=True)
+    hce: str = Field(primary_key=True, index=True, max_length=20)
     dni: str = Field(index=True, unique=True, max_length=15)
     nombre: str
     apellido: str
@@ -13,5 +14,15 @@ class Paciente(SQLModel, table=True):
     genero: str  # 'm' o 'f'
     direccion: Optional[str] = None
     telefono: Optional[str] = None
+    ocupacion: Optional[str] = None
+    fecha_nacimiento: Optional[str] = None
+    grupo_sanguineo: Optional[str] = None
+    seguro_social: Optional[str] = None
+    estado_civil: Optional[str] = None
+    alergias: Optional[str] = None
+    antedecentes_medicos: Optional[str] = None
+    antecedentes_familiares: Optional[str] = None
+    fecha_registro: datetime =  Field(default_factory=datetime.now)
+    
 
 

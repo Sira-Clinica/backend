@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 
@@ -20,6 +21,15 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
     auth_service = AuthService(UserRepository()) 
     user = auth_service.authenticate_user(db, credentials.username, credentials.password)
 
+    if not user:
+        raise HTTPException(status_code=401, detail="Credenciales inválidas")
+
+    # Actualizar el último acceso
+    user.ultimo_accesso = datetime.now()
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
     token = create_access_token(data={"sub": user.username, "role": user.role_id})
     return TokenResponse(
         access_token=token,
@@ -30,8 +40,15 @@ def login(credentials: UserLogin, db: Session = Depends(get_db)):
 
 
 
+
 @router_auth.post("/register", summary="Registrar nuevo usuario")
-def register(data: UserRegister, db: Session = Depends(get_db)):
+def register(data: UserRegister, 
+             db: Session = Depends(get_db),
+             current_user: User = Depends(get_current_user)
+             ):
+
+    if current_user.role_id != 1:
+        raise HTTPException(status_code=403, detail="No autorizado")
     existing = AuthService.user_exists(db, data.username, data.email)
     if existing:
         raise HTTPException(

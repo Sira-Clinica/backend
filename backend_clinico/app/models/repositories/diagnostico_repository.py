@@ -49,6 +49,7 @@ def guardar_diagnostico_con_vitalsign(
         f_card=vital.f_card,
         f_resp=vital.f_resp,
         talla=vital.talla,
+        imc=vital.imc,
         peso=vital.peso,
         genero=vital.genero,
         motivo_consulta=motivo_consulta,

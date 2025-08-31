@@ -131,7 +131,11 @@ def predecir_con_dni(
         motivo_consulta=data.motivo_consulta,
         examenfisico=data.examenfisico,
         resultado=resultado,
-        dni=dni
+        dni=dni,
+        indicaciones=data.indicaciones,
+        medicamentos=data.medicamentos,
+        notas=data.notas,
+        imc=vital.imc
     )
 
     db.add(diagnostico)

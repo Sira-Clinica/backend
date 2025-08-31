@@ -1,9 +1,10 @@
 
 
 from sqlmodel import SQLModel, create_engine, Session
+from backend_clinico.app.core.config import settings
 
+DATABASE_URL = settings.database_url
 
-DATABASE_URL = "mysql+pymysql://root:password@localhost:3306/clinica_db"
 
 engine = create_engine(DATABASE_URL, echo=True)
 

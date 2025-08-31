@@ -13,3 +13,4 @@ class DiagnosticoInput(SQLModel):
     genero: str
     motivo_consulta: Optional[str] = None
     examenfisico: Optional[str] = None
+    imc: Optional[float] = None

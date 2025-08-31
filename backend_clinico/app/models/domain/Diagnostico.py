@@ -12,7 +12,11 @@ class Diagnostico(SQLModel, table=True):
     f_resp: int
     talla: float
     peso: float
-    genero: str  # 'm' o 'f'
+    genero: str 
     motivo_consulta: Optional[str] = Field(default=None, max_length=500)
     examenfisico: Optional[str] = Field(default=None, max_length=500)
+    indicaciones:Optional[str] = Field(default=None, max_length=500)
+    medicamentos:Optional[str] = Field(default=None, max_length=500)
+    notas:Optional[str] = Field(default=None, max_length=500)
     resultado: Optional[str] = Field(default=None, max_length=100)
+    imc: Optional[float] = Field(default=None)
