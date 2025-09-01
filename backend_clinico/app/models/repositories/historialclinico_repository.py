@@ -16,6 +16,9 @@ def guardar_en_historial_clinico(db: Session, diagnostico: Diagnostico, paciente
         genero=diagnostico.genero,
         motivo_consulta=diagnostico.motivo_consulta,
         examenfisico=diagnostico.examenfisico,
+        indicaciones=diagnostico.indicaciones,
+        medicamentos=diagnostico.medicamentos,
+        notas=diagnostico.notas,
         resultado_diagnostico=diagnostico.resultado,
     )
     db.add(entrada)

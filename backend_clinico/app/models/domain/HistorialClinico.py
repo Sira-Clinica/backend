@@ -17,5 +17,8 @@ class HistorialClinico(SQLModel, table=True):
     genero: str
     motivo_consulta: str
     examenfisico: str
+    indicaciones:str
+    medicamentos:str
+    notas:str
     resultado_diagnostico: str
-    fecha_registro: datetime = Field(default_factory=datetime.utcnow)
+    fecha_registro: datetime =  Field(default_factory=datetime.now)
