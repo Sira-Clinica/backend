@@ -135,13 +135,14 @@ def get_all_account_requests(
     return [
         {
             "id": req.id,
-            "username": req.username,
-            "full_name": req.full_name,
-            "email": req.email,
-            "role": req.role,
-            "area": req.hce,
-            "motivacion": req.dni,
+            "full_name": req.full_name or "",
+            "email": req.email or "",
+            "role": req.requested_role or "",
+            "area": req.area or "",
+            "motivacion": req.motivo or "",
             "created_at": req.created_at
         }
         for req in account_requests
     ]
+
+ 
