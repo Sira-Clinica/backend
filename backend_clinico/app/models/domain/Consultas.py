@@ -14,7 +14,7 @@ class Consultas(SQLModel, table=True):
     paciente_apelido: Optional[str]= None
     dni: Optional[str] = Field(default=None)
     status: Optional[str] = Field(default="En espera", max_length=50)  
-    user_fullname: Optional[str] = Field(default=None)
+    user_fullname_medic: Optional[str] = Field(default=None)
     anio:Optional[int] = Field(default=None)
     mes:Optional[int] = Field(default=None)
     dia:Optional[int] = Field(default=None)

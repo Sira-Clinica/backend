@@ -12,7 +12,7 @@ from backend_clinico.security.domain.model.user import User
 from sqlalchemy import and_, func
 from datetime import datetime
 
-def guardar_consulta(db: Session, status: str, dni: str, user_fullname: str, dia: int, hora: int, minuto: int) -> Consultas:
+def guardar_consulta(db: Session, status: str, dni: str, user_fullname_medic: str, dia: int, hora: int, minuto: int) -> Consultas:
     # Buscar paciente por DNI
     paciente = db.exec(select(Paciente).where(Paciente.dni == dni)).first()
     if not paciente:
@@ -21,7 +21,7 @@ def guardar_consulta(db: Session, status: str, dni: str, user_fullname: str, dia
     # Buscar usuario médico por nombre completo y rol
     medico = db.exec(
         select(User).where(
-            User.full_name == user_fullname,
+            User.full_name == user_fullname_medic,
             User.role_id == 2
         )
     ).first()
@@ -45,7 +45,7 @@ def guardar_consulta(db: Session, status: str, dni: str, user_fullname: str, dia
                 Consultas.dia == dia,
                 Consultas.hora == hora,
                 Consultas.minuto == minuto,
-                Consultas.user_fullname == medico.full_name
+                Consultas.user_fullname_medic == medico.full_name
             )
         )
     ).first()
@@ -65,7 +65,7 @@ def guardar_consulta(db: Session, status: str, dni: str, user_fullname: str, dia
         dia=dia,
         hora=hora,
         minuto=minuto,
-        user_fullname=medico.full_name
+        user_fullname_medic=medico.full_name
     )
     db.add(nueva_consulta)
     db.commit()
@@ -78,7 +78,7 @@ def obtener_consultas_por_paciente(db: Session, dni: str):
     return db.exec(select(Consultas).where(Consultas.dni == dni)).all()
 
 def obtener_consultas_por_medico(db: Session, user_fullname: str):
-    return db.exec(select(Consultas).where(Consultas.user_fullname == user_fullname)).all()
+    return db.exec(select(Consultas).where(Consultas.user_fullname_medic == user_fullname)).all()
 
 
 
@@ -138,7 +138,7 @@ def obtener_consultas_medico(
         (Consultas.anio == hoy.year) &
         (Consultas.mes == hoy.month) &
         (Consultas.dia == hoy.day) &
-        (Consultas.user_fullname == medico_fullname)
+        (Consultas.user_fullname_medic == medico_fullname)
     )
 
     if paciente:
@@ -164,7 +164,7 @@ def obtener_total_consultas_medico(
     Retorna la cantidad total de consultas para un médico específico.
     """
     query = select(func.count()).select_from(Consultas).where(
-        Consultas.user_fullname == medico_fullname
+        Consultas.user_fullname_medic == medico_fullname
     )
     result = db.exec(query).one()
     return result or 0
@@ -184,7 +184,7 @@ def obtener_total_consultas_ultimos_7_dias(
 
     # Suponiendo que tu modelo usa anio, mes, dia en lugar de un campo datetime completo
     query = select(func.count()).select_from(Consultas).where(
-        (Consultas.user_fullname == medico_fullname) &
+        (Consultas.user_fullname_medic == medico_fullname) &
         (
             (Consultas.anio > hace_siete_dias.year) |
             (

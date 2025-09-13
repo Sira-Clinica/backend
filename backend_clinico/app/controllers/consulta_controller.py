@@ -33,7 +33,7 @@ def registrar_consulta(
     if current_user.role_id not in [1,3]:
         raise HTTPException(status_code=403, detail="No autorizado")
 
-    consulta = guardar_consulta(db, data.status, data.dni, data.user_fullname, data.dia, data.hora, data.minuto)
+    consulta = guardar_consulta(db, data.status, data.dni, data.user_fullname_medic, data.dia, data.hora, data.minuto)
     return {"message": "Consulta registrada correctamente", "consulta": consulta}
 
 @consulta_router.get("/paciente/{dni}", summary="Obtener consultas por paciente (admin y enfermero)")
@@ -46,15 +46,15 @@ def listar_consultas_paciente(
         raise HTTPException(status_code=403, detail="No autorizado")
     return obtener_consultas_por_paciente(db, dni)
 
-@consulta_router.get("/medico/{user_fullname}", summary="Obtener consultas por médico (admin y enfermero)")
+@consulta_router.get("/medico/{user_fullname_medic}", summary="Obtener consultas por médico (admin y enfermero)")
 def listar_consultas_medico(
-    user_fullname: str,
+    user_fullname_medic: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     if current_user.role_id not in [1, 3]:
         raise HTTPException(status_code=403, detail="No autorizado")
-    return obtener_consultas_por_medico(db, user_fullname)
+    return obtener_consultas_por_medico(db, user_fullname_medic)
 
 
 @consulta_router.patch("/{consulta_dni}/status", summary="Actualizar solo el status de una consulta (admin y enfermero)")
