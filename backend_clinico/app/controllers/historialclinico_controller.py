@@ -8,13 +8,13 @@ from backend_clinico.security.infrastructure.auth_dependencies import get_curren
 
 historial_router = APIRouter(prefix="/historial", tags=["Historial Clínico"])
 
-@historial_router.get("/{dni}", summary="Obtener historial clínico completo por DNI (doctor y admin)")
+@historial_router.get("/{dni}", summary="Obtener historial clínico completo por DNI (doctor , enfermero y admin)")
 def obtener_historial_clinico(
     dni: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role_id not in [1, 2]:
+    if current_user.role_id not in [1, 2, 3]:
         raise HTTPException(status_code=403, detail="No autorizado")
 
     historial = obtener_historial_por_dni(db, dni)

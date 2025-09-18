@@ -27,6 +27,10 @@ class UserService:
         self.user_repo.delete(db, user)
         return {"message": "Usuario eliminado correctamente"}
     
+    def get_all_medicos(self, db: Session) -> List[User]:
+        return self.user_repo.get_medicos(db)
+
+    
     def update_user(self, db: Session, user_id: int, data: UserUpdateRequest) -> User:
         user = self.user_repo.get_by_id(db, user_id)
         if not user:

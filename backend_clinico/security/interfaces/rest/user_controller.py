@@ -8,6 +8,7 @@ from backend_clinico.security.domain.model.user import User
 
 from backend_clinico.security.domain.repository.user_repository import UserRepository
 from backend_clinico.security.resource.request.user_request import UserPasswordChangeRequest, UserUpdateRequest
+from backend_clinico.security.resource.response.user_response import MedicoResponse
 
 router_user = APIRouter(prefix="/users", tags=["Usuarios"])
 
@@ -24,6 +25,22 @@ def listar_usuarios(
     return user_service.get_all_users(db)
 
 
+@router_user.get(
+    "/medicos",
+    summary="Listar nombres completos de los médicos",
+    response_model=List[MedicoResponse]
+)
+def listar_medicos(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role_id not in [1, 3]:
+        raise HTTPException(status_code=403, detail="No autorizado")
+
+    user_service = UserService(UserRepository())
+    return user_service.get_all_medicos(db)
+
+
 @router_user.get("/{user_id}", summary="Obtener usuario por ID", response_model=User)
 def obtener_usuario(
     user_id: int,
@@ -38,6 +55,8 @@ def obtener_usuario(
         return user_service.get_user_by_id(db, user_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    
+
 
 
 @router_user.delete("/{user_id}", summary="Eliminar usuario por ID")

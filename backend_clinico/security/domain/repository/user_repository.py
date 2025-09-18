@@ -36,6 +36,11 @@ class UserRepository:
         db.commit()
         db.refresh(user)
         return user
+    
+
+    def get_medicos(self, db: Session) -> List[User]:
+        return db.exec(select(User).where(User.role_id == 2)).all()
+
 
     def update(self, db: Session, user: User) -> User:
         db.add(user)
@@ -46,6 +51,8 @@ class UserRepository:
     def delete(self, db: Session, user: User):
         db.delete(user)
         db.commit()
+
+
 
 
 
