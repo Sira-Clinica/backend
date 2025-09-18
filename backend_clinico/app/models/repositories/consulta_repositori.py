@@ -12,7 +12,7 @@ from backend_clinico.security.domain.model.user import User
 from sqlalchemy import and_, func
 from datetime import datetime
 
-def guardar_consulta(db: Session, status: str, dni: str, user_fullname_medic: str, dia: int, hora: int, minuto: int) -> Consultas:
+def guardar_consulta(db: Session, dni: str, user_fullname_medic: str, dia: int, hora: int, minuto: int) -> Consultas:
     # Buscar paciente por DNI
     paciente = db.exec(select(Paciente).where(Paciente.dni == dni)).first()
     if not paciente:
@@ -59,7 +59,7 @@ def guardar_consulta(db: Session, status: str, dni: str, user_fullname_medic: st
         paciente_nombre=paciente.nombre,
         paciente_apelido=paciente.apellido,
         dni=paciente.dni,
-        status=status,
+        status="En espera",
         anio=anio_actual,
         mes=mes_actual,
         dia=dia,
@@ -202,3 +202,24 @@ def obtener_total_consultas_ultimos_7_dias(
 
     result = db.exec(query).one()
     return result or 0
+
+
+
+
+
+def get_status_por_id_consulta(
+        db:Session,
+        id_consulta:int
+) -> str:
+    query = select (Consultas.status).where(Consultas.id == id_consulta)
+    result = db.exec(query).first()
+    return result or "No se encontró ninguna consulta"
+
+def finalizar_consulta(db: Session, consulta_id: int) -> Consultas:
+    consulta = db.get(Consultas, consulta_id)
+    if consulta:
+        consulta.status = "Terminado"
+        db.add(consulta)
+        db.commit()
+        db.refresh(consulta)
+    return consulta

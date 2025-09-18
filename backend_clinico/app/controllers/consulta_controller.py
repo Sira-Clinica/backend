@@ -13,6 +13,7 @@ from backend_clinico.app.models.repositories.consulta_repositori import (
     obtener_consultas_por_medico,
     obtener_total_consultas_medico,
     obtener_total_consultas_ultimos_7_dias,
+    get_status_por_id_consulta
 )
 from backend_clinico.app.models.conection.dependency import get_db
 from backend_clinico.security.infrastructure.auth_dependencies import get_current_user
@@ -33,7 +34,7 @@ def registrar_consulta(
     if current_user.role_id not in [1,3]:
         raise HTTPException(status_code=403, detail="No autorizado")
 
-    consulta = guardar_consulta(db, data.status, data.dni, data.user_fullname_medic, data.dia, data.hora, data.minuto)
+    consulta = guardar_consulta(db, data.dni, data.user_fullname_medic, data.dia, data.hora, data.minuto)
     return {"message": "Consulta registrada correctamente", "consulta": consulta}
 
 @consulta_router.get("/paciente/{dni}", summary="Obtener consultas por paciente (admin y enfermero)")
@@ -140,6 +141,14 @@ def total_consultas_ultimos_7_dias(
 
 
 
+@consulta_router.get("/status/{id_consulta}", summary="Obtener status de la consulta por ID (admin , enfermero y médico)")
+def status_consulta_por_id(
+    id_consulta: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role_id not in [1, 3,2]:
+        raise HTTPException(status_code=403, detail="No autorizado")
 
-
-
+    status = get_status_por_id_consulta(db, id_consulta)
+    return {"id_consulta": id_consulta, "status": status}

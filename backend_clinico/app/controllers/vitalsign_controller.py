@@ -22,7 +22,7 @@ from backend_clinico.security.domain.model.user import User
 vitalsign_router = APIRouter(prefix="/vitalsign", tags=["Signos Vitales"])
 
 def verificar_permisos(current_user: User):
-    if current_user.role_id not in [1,  3]:
+    if current_user.role_id not in [1,3,2]:
         raise HTTPException(status_code=403, detail="No autorizado")
 
 @vitalsign_router.post("/", summary="Registrar o actualizar signos vitales")
