@@ -12,6 +12,9 @@ from backend_clinico.security.resource.response.user_response import MedicoRespo
 
 router_user = APIRouter(prefix="/users", tags=["Usuarios"])
 
+def verificar_permisos(current_user: User):
+    if current_user.role_id not in [1, 2, 3]:
+        raise HTTPException(status_code=403, detail="No autorizado")
 
 @router_user.get("/", summary="Listar todos los usuarios", response_model=List[User])
 def listar_usuarios(
@@ -99,8 +102,7 @@ def cambiar_contraseña(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    if current_user.role_id != 1 and current_user.role_id !=2:
-        raise HTTPException(status_code=403, detail="No autorizado")
+    verificar_permisos(current_user)
 
     user_service = UserService(UserRepository())
     try:
