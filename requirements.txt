@@ -3,6 +3,7 @@ uvicorn[standard]==0.29.0
 sqlmodel>=0.0.18
 sqlalchemy>=2.0
 pymysql
+psycopg2-binary>=2.9.9
 
 scikit-learn==1.5.2
 pandas==2.1.4
