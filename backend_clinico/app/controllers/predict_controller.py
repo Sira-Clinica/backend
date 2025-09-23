@@ -5,12 +5,14 @@ from sqlmodel import Session,select
 from backend_clinico.app.Dtos.DiagnosticoInput import DiagnosticoInput
 from backend_clinico.app.Dtos.DiagnosticoSimpleInput import DiagnosticoSimpleInput
 from backend_clinico.app.Dtos.VitalSignInput import VitalSignInput
+from backend_clinico.app.models.domain.Consultas import Consultas
 from backend_clinico.app.models.domain.Diagnostico import Diagnostico
 from backend_clinico.app.models.domain.Paciente import Paciente
 from backend_clinico.app.models.domain.VitalSign import VitalSign
 from backend_clinico.app.models.repositories.historialclinico_repository import guardar_en_historial_clinico
 from backend_clinico.app.models.repositories.vitalsign_repository import obtener_ultimo_vitalsign_por_dni
 from backend_clinico.app.services.prediccion_service import predecir_diagnostico
+from backend_clinico.app.models.repositories.consulta_repositori import finalizar_consulta
 from backend_clinico.app.models.repositories.diagnostico_repository import (
     guardar_diagnostico,
     guardar_diagnostico_con_vitalsign,
@@ -21,7 +23,8 @@ from backend_clinico.app.models.repositories.diagnostico_repository import (
     obtener_diagnosticos_por_dni,
     actualizar_ultimo_diagnostico_por_dni,
     eliminar_diagnosticos_por_dni,
-    obtener_ultimo_diagnostico_por_dni
+    obtener_ultimo_diagnostico_por_dni,
+    
 )
 from backend_clinico.app.models.conection.dependency import get_db
 from backend_clinico.security.infrastructure.auth_dependencies import get_current_user
@@ -99,14 +102,22 @@ def actualizar(
 @predict_router.post("/from-dni/{dni}", summary="Realizar predicción clínica usando DNI del paciente")
 def predecir_con_dni(
     dni: str,
+    consulta_id: int,
     data: DiagnosticoSimpleInput,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     if current_user.role_id not in [1, 2]:
         raise HTTPException(status_code=403, detail="No autorizado")
+    
+    consulta = db.get(Consultas, consulta_id)
+    if not consulta:
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
 
     vital = obtener_ultimo_vitalsign_por_dni(db, dni)
+
+    if not vital:
+        raise HTTPException(status_code=404, detail="No se encontraron signos vitales")
 
     resultado = predecir_diagnostico(
         temperatura=vital.temperatura,
@@ -121,6 +132,7 @@ def predecir_con_dni(
     )
 
     diagnostico = Diagnostico(
+        consulta_id=consulta.id,
         temperatura=vital.temperatura,
         edad=vital.edad,
         f_card=vital.f_card,
@@ -142,10 +154,11 @@ def predecir_con_dni(
 
     paciente = db.exec(select(Paciente).where(Paciente.dni == dni)).first()
     guardar_en_historial_clinico(db, diagnostico, paciente)
+    consulta_actualizada = finalizar_consulta(db, consulta_id)
     db.commit()
     db.refresh(diagnostico)
 
-    return {"diagnostico": resultado, "datos": diagnostico}
+    return {"diagnostico": resultado, "datos": diagnostico, "consulta": consulta_actualizada}
 
 
 

@@ -5,7 +5,8 @@ from sqlmodel import Session
 from backend_clinico.app.Dtos.ConsultaInput import ConsultaInput, UpdateStatusConsultaInput
 from backend_clinico.app.models.domain.Consultas import Consultas
 from backend_clinico.app.models.repositories.consulta_repositori import (
-    actualizar_status_consulta,
+   actualizar_status_consulta,
+    actualizar_consulta,  
     guardar_consulta,
     obtener_consultas_hoy,
     obtener_consultas_medico,
@@ -13,6 +14,8 @@ from backend_clinico.app.models.repositories.consulta_repositori import (
     obtener_consultas_por_medico,
     obtener_total_consultas_medico,
     obtener_total_consultas_ultimos_7_dias,
+    get_status_por_id_consulta,
+    finalizar_consulta  
 )
 from backend_clinico.app.models.conection.dependency import get_db
 from backend_clinico.security.infrastructure.auth_dependencies import get_current_user
@@ -33,7 +36,7 @@ def registrar_consulta(
     if current_user.role_id not in [1,3]:
         raise HTTPException(status_code=403, detail="No autorizado")
 
-    consulta = guardar_consulta(db, data.status, data.dni, data.user_fullname, data.dia, data.hora, data.minuto)
+    consulta = guardar_consulta(db, data.dni, data.user_fullname_medic, data.dia, data.hora, data.minuto)
     return {"message": "Consulta registrada correctamente", "consulta": consulta}
 
 @consulta_router.get("/paciente/{dni}", summary="Obtener consultas por paciente (admin y enfermero)")
@@ -46,15 +49,34 @@ def listar_consultas_paciente(
         raise HTTPException(status_code=403, detail="No autorizado")
     return obtener_consultas_por_paciente(db, dni)
 
-@consulta_router.get("/medico/{user_fullname}", summary="Obtener consultas por médico (admin y enfermero)")
+@consulta_router.get("/medico/{user_fullname_medic}", summary="Obtener consultas por médico (admin y enfermero)")
 def listar_consultas_medico(
-    user_fullname: str,
+    user_fullname_medic: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     if current_user.role_id not in [1, 3]:
         raise HTTPException(status_code=403, detail="No autorizado")
-    return obtener_consultas_por_medico(db, user_fullname)
+    return obtener_consultas_por_medico(db, user_fullname_medic)
+
+@consulta_router.put("/{id_consulta}", summary="Actualizar consulta por id (admin, enfermero y medico)")
+def actualizar_consulta_id(
+        id_consulta: int,
+        data: ConsultaInput,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+    ):
+        if current_user.role_id not in [1, 2, 3]:
+            raise HTTPException(status_code=403, detail="No autorizado")
+        # Convertir los datos a dict, excluyendo valores None si es necesario
+        datos_actualizacion = {k: v for k, v in data.dict().items() if v is not None}
+        
+        consulta = actualizar_consulta(db, id_consulta, datos_actualizacion)
+        
+        if not consulta:
+            raise HTTPException(status_code=404, detail="Consulta no encontrada")
+        
+        return {"message": "Consulta actualizada correctamente", "consulta": consulta}
 
 
 @consulta_router.patch("/{consulta_dni}/status", summary="Actualizar solo el status de una consulta (admin y enfermero)")
@@ -140,6 +162,32 @@ def total_consultas_ultimos_7_dias(
 
 
 
+@consulta_router.get("/status/{id_consulta}", summary="Obtener status de la consulta por ID (admin , enfermero y médico)")
+def status_consulta_por_id(
+    id_consulta: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role_id not in [1, 3,2]:
+        raise HTTPException(status_code=403, detail="No autorizado")
+
+    status = get_status_por_id_consulta(db, id_consulta)
+    return {"id_consulta": id_consulta, "status": status}
 
 
 
+@consulta_router.patch("/{consulta_id}/finalizar", summary="Finalizar consulta (solo médicos)")
+def finalizar_consulta_endpoint(
+    consulta_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role_id != 2:
+        raise HTTPException(status_code=403, detail="Solo los médicos pueden finalizar consultas.")
+    
+    consulta = finalizar_consulta(db, consulta_id)
+    
+    if not consulta:
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
+    
+    return {"message": "Consulta finalizada correctamente", "consulta": consulta}

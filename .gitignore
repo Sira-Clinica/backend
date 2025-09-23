@@ -3,4 +3,33 @@
 /..env/
 .env
 
+
 **/__pycache__/
+/.dockerignore
+
+# Docker
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile
+Dockerfile.*
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+/.env
+*.env
+*.env.* 
+// .env
+
+# Docker
+docker-compose.yml
+docker-compose.*.yml
+Dockerfile
+Dockerfile.*
+ 
+# VS Code
+.vscode

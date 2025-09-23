@@ -5,6 +5,7 @@ class Diagnostico(SQLModel, table=True):
     __tablename__ = "diagnosticos"
 
     id: Optional[int] = Field(default=None, primary_key=True, index=True)
+    consulta_id: Optional[int] = Field(default=None, foreign_key="consultas.id")
     dni: Optional[str] = Field(default=None, max_length=500)
     temperatura: float
     edad: int
