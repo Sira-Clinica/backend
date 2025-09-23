@@ -5,8 +5,7 @@ from typing import List
 from backend_clinico.security.application.UserService import UserService
 from backend_clinico.security.infrastructure.auth_dependencies import get_db, get_current_user
 from backend_clinico.security.domain.model.user import User
-
-from backend_clinico.security.domain.repository.user_repository import UserRepository
+from backend_clinico.security.domain.repository.user_repository import UserRepository,  send_password_change_email
 from backend_clinico.security.resource.request.user_request import UserPasswordChangeRequest, UserUpdateRequest
 from backend_clinico.security.resource.response.user_response import MedicoResponse
 
@@ -105,7 +104,29 @@ def cambiar_contraseña(
     verificar_permisos(current_user)
 
     user_service = UserService(UserRepository())
+    
     try:
-        return user_service.change_password(db, user_id, data.old_password, data.new_password)
+        # Primero obtenemos los datos del usuario antes del cambio
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        
+        # Cambiamos la contraseña
+        updated_user = user_service.change_password(db, user_id, data.old_password, data.new_password)
+        
+        # Enviamos el correo específico para cambio de contraseña
+        send_password_change_email(
+            to_email=user.email,
+            username=user.username,
+            new_password=data.new_password
+        )
+        
+        return {
+            "message": "Contraseña actualizada correctamente y correo de notificación enviado", 
+            "user": updated_user
+        }
+        
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al procesar solicitud: {str(e)}")

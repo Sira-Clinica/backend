@@ -65,7 +65,7 @@ def guardar_consulta(db: Session, dni: str, user_fullname_medic: str, dia: int, 
     nueva_consulta = Consultas(
         paciente_hce=paciente.hce,
         paciente_nombre=paciente.nombre,
-        paciente_apelido=paciente.apellido,
+        paciente_apellido=paciente.apellido,
         dni=paciente.dni,
         status="En espera",
         anio=anio_actual,
@@ -123,7 +123,7 @@ def actualizar_consulta(db: Session, consulta_id: int, nuevos_datos: dict) -> Co
         nuevos_datos.update({
             'dni': nuevo_paciente.dni,
             'paciente_nombre': nuevo_paciente.nombre,
-            'paciente_apelido': nuevo_paciente.apellido,
+            'paciente_apellido': nuevo_paciente.apellido,
             'paciente_hce': nuevo_paciente.hce
         })
         
@@ -157,7 +157,7 @@ def obtener_consultas_hoy(
         query = query.where(
             or_(
                 Consultas.paciente_nombre.ilike(f"%{paciente}%"),
-                Consultas.paciente_apelido.ilike(f"%{paciente}%")
+                Consultas.paciente_apellido.ilike(f"%{paciente}%")
             )
         )
     if hce:
@@ -188,7 +188,7 @@ def obtener_consultas_medico(
         query = query.where(
             or_(
                 Consultas.paciente_nombre.ilike(f"%{paciente}%"),
-                Consultas.paciente_apelido.ilike(f"%{paciente}%")
+                Consultas.paciente_apellido.ilike(f"%{paciente}%")
             )
         )
     if hce:

@@ -11,7 +11,7 @@ class Consultas(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, index=True)
     paciente_hce: Optional[str] = Field(default=None, foreign_key="pacientes.hce")
     paciente_nombre: Optional[str]= None
-    paciente_apelido: Optional[str]= None
+    paciente_apellido: Optional[str]= None
     dni: Optional[str] = Field(default=None)
     status: Optional[str] = Field(default="En espera", max_length=50)  
     user_fullname_medic: Optional[str] = Field(default=None)
