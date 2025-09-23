@@ -4,7 +4,7 @@
 from pydantic import Field, ValidationError
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
-
+from typing import List
 # Cargar variables desde el archivo .env (si existe)
 load_dotenv()
 
@@ -32,6 +32,16 @@ class Settings(BaseSettings):
     email_host_user: str = Field(..., env="EMAIL_HOST_USER")
     email_host_password: str = Field(..., env="EMAIL_HOST_PASSWORD")
     email_use_tls: bool = Field(..., env="EMAIL_USE_TLS")
+
+    cors_origins: str = Field(
+        default="http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173",
+        env="CORS_ORIGINS"
+    )
+    
+   
+    def get_cors_origins(self) -> List[str]:
+        """Convierte el string de origins separado por comas en una lista"""
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
 
 

@@ -66,17 +66,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="API Diagnóstico Clínico", lifespan=lifespan)
 
 
-origins = [
-    "http://localhost:3000", 
-    "http://127.0.0.1:3000",
-    "https://tudominio.com", 
-]
+origins = settings.get_cors_origins()
+print(f"CORS Origins configurados: {origins}") 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],      
+    allow_origins=origins, 
     allow_credentials=True,     
-    allow_methods=["*"],        
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],        
     allow_headers=["*"],         
 )
 
