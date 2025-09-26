@@ -182,13 +182,28 @@ def actualizar_por_dni(
     current_user: User = Depends(get_current_user)
 ):
     verificar_permisos(current_user)
+
     actualizado = actualizar_ultimo_diagnostico_por_dni(db, dni, {
         "motivo_consulta": data.motivo_consulta,
-        "examenfisico": data.examenfisico
+        "examenfisico": data.examenfisico,
+        "indicaciones": data.indicaciones,
+        "medicamentos": data.medicamentos,
+        "notas": data.notas
     })
+
     if not actualizado:
         raise HTTPException(status_code=404, detail="Diagnóstico no encontrado para este DNI")
-    return actualizado
+
+    
+    paciente = db.exec(select(Paciente).where(Paciente.dni == dni)).first()
+    if paciente:
+        guardar_en_historial_clinico(db, actualizado, paciente)
+
+    return {
+        "message": "Diagnóstico actualizado y guardado en historial clínico",
+        "diagnostico": actualizado
+    }
+
 
 @predict_router.delete("/by-dni/{dni}", summary="Eliminar todos los diagnósticos por DNI")
 def eliminar_por_dni(
