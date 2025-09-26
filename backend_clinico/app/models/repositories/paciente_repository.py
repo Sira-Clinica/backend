@@ -1,3 +1,4 @@
+import random
 from fastapi import HTTPException
 from sqlmodel import Session
 from sqlmodel import select, or_
@@ -7,24 +8,16 @@ from datetime import datetime
 from backend_clinico.app.models.domain.Paciente import Paciente
 
 def generar_hce(db: Session) -> str:
-    
-    anio_actual = datetime.now().year
-    
-    prefijo = f"HCE-{anio_actual}-"
-    ultimo = db.exec(
-        select(Paciente)
-        .where(Paciente.hce.like(f"{prefijo}%"))
-        .order_by(Paciente.hce.desc())
-    ).first()
-    if ultimo and ultimo.hce:
-        try:
-            numero = int(ultimo.hce.split("-")[-1])
-        except Exception:
-            numero = 0
-    else:
-        numero = 0
-    nuevo_numero = numero + 1
-    return f"{prefijo}{nuevo_numero:03d}"
+
+    while True:
+        resto = "".join(str(random.randint(1, 9)) for _ in range(6))
+        numero = f"0{resto}"  
+        existente = db.exec(
+            select(Paciente).where(Paciente.hce == numero)
+        ).first()
+
+        if not existente:
+            return numero
 
 
 def guardar_paciente(db: Session, data: dict) -> Paciente:

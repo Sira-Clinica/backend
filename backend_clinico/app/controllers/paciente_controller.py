@@ -7,6 +7,7 @@ from backend_clinico.app.models.conection.dependency import get_db
 from backend_clinico.app.models.repositories.vitalsign_repository import guardar_vital
 from backend_clinico.app.models.repositories.paciente_repository import (
     buscar_pacientes,
+    generar_hce,
     guardar_paciente,
     obtener_pacientes,
     obtener_paciente_por_id,
@@ -33,6 +34,11 @@ def registrar_paciente(
 ):
     if current_user.role_id not in [1, 3]:
         raise HTTPException(status_code=403, detail="No autorizado")
+    hce_unico = generar_hce(db)
+
+    # Convertir el DTO a diccionario y añadir el HCE
+    paciente_data = data.dict()
+    paciente_data["hce"] = hce_unico
 
     nuevo = guardar_paciente(db, data.dict())
 

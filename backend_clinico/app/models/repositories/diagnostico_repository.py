@@ -70,12 +70,33 @@ def actualizar_ultimo_diagnostico_por_dni(db: Session, dni: str, nuevos_datos: d
     diagnostico = db.exec(
         select(Diagnostico).where(Diagnostico.dni == dni).order_by(Diagnostico.id.desc())
     ).first()
+    
     if diagnostico:
+        # Actualizar los campos enviados
         for clave, valor in nuevos_datos.items():
             setattr(diagnostico, clave, valor)
+
+        # Generar nueva predicción con datos actualizados
+        from backend_clinico.app.services.prediccion_service import predecir_diagnostico
+
+        nuevo_resultado = predecir_diagnostico(
+            temperatura=diagnostico.temperatura,
+            edad=diagnostico.edad,
+            f_card=diagnostico.f_card,
+            f_resp=diagnostico.f_resp,
+            talla=diagnostico.talla,
+            peso=diagnostico.peso,
+            genero=diagnostico.genero,
+            motivo_consulta=diagnostico.motivo_consulta,
+            examenfisico=diagnostico.examenfisico
+        )
+
+        diagnostico.resultado = nuevo_resultado
+
         db.commit()
         db.refresh(diagnostico)
     return diagnostico
+
 
 def eliminar_diagnosticos_por_dni(db: Session, dni: str) -> int:
     diagnosticos = db.exec(select(Diagnostico).where(Diagnostico.dni == dni)).all()
