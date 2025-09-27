@@ -21,3 +21,8 @@ class AccountRequestRepository:
         db.commit()
         db.refresh(request)
         return request
+    
+    def get_not_accepted(self, db: Session) -> List[AccountRequest]:
+        return db.exec(
+            select(AccountRequest).where(AccountRequest.status != "aceptado")
+        ).all()

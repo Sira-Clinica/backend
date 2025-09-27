@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -22,7 +22,7 @@ class Paciente(SQLModel, table=True):
     alergias: Optional[str] = None
     antedecentes_medicos: Optional[str] = None
     antecedentes_familiares: Optional[str] = None
-    fecha_registro: datetime =  Field(default_factory=datetime.now)
+    fecha_registro: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
 
 

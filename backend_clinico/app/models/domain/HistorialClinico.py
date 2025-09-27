@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Field
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class HistorialClinico(SQLModel, table=True):
     __tablename__ = "historial_clinico"
@@ -21,4 +21,4 @@ class HistorialClinico(SQLModel, table=True):
     medicamentos:str
     notas:str
     resultado_diagnostico: str
-    fecha_registro: datetime =  Field(default_factory=datetime.now)
+    fecha_registro: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

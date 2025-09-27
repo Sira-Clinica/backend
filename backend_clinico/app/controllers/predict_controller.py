@@ -175,7 +175,7 @@ def obtener_por_dni(
     return resultados
 
 @predict_router.put("/by-dni/{dni}", summary="Actualizar último diagnóstico por DNI")
-def actualizar_por_dni(
+def actualizar_diagnostico_por_dni(
     dni: str,
     data: DiagnosticoSimpleInput,
     db: Session = Depends(get_db),
@@ -192,7 +192,22 @@ def actualizar_por_dni(
     })
 
     if not actualizado:
-        raise HTTPException(status_code=404, detail="Diagnóstico no encontrado para este DNI")
+        raise HTTPException(
+            status_code=404,
+            detail="Diagnóstico no encontrado para este DNI"
+        )
+
+    
+    consulta = db.get(Consultas, actualizado.consulta_id)
+    if consulta:
+        if not consulta.edit_status:
+            raise HTTPException(
+                status_code=403,
+                detail="Este diagnóstico ya fue editado y no puede modificarse nuevamente"
+            )
+        consulta.edit_status = False
+        db.add(consulta)
+        db.commit()
 
     
     paciente = db.exec(select(Paciente).where(Paciente.dni == dni)).first()
@@ -200,7 +215,7 @@ def actualizar_por_dni(
         guardar_en_historial_clinico(db, actualizado, paciente)
 
     return {
-        "message": "Diagnóstico actualizado y guardado en historial clínico",
+        "message": "Diagnóstico actualizado correctamente. Ya no se podrá editar nuevamente esta consulta.",
         "diagnostico": actualizado
     }
 

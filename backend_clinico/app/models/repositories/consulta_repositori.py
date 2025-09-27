@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import pytz
 from fastapi import HTTPException
@@ -15,9 +15,13 @@ from datetime import datetime
 # Zona horaria de Perú
 PERU_TZ = pytz.timezone('America/Lima')
 
+def obtener_fecha_utc() -> datetime:
+    """Siempre usar UTC para guardar en DB"""
+    return datetime.now(timezone.utc)
+
 def obtener_fecha_peru() -> datetime:
     """Obtiene la fecha y hora actual de Perú"""
-    return datetime.now(PERU_TZ)
+    return datetime.now(timezone.utc).astimezone(PERU_TZ)
 
 def guardar_consulta(db: Session, dni: str, user_fullname_medic: str, dia: int, hora: int, minuto: int) -> Consultas:
     # Buscar paciente por DNI
@@ -40,8 +44,9 @@ def guardar_consulta(db: Session, dni: str, user_fullname_medic: str, dia: int, 
     mes_actual = ahora_peru.month
 
     # Validar que la fecha no sea pasada
-    fecha_consulta = PERU_TZ.localize(datetime(anio_actual, mes_actual, dia, hora, minuto))
-    if fecha_consulta < ahora_peru:
+    fecha_consulta_peru = PERU_TZ.localize(datetime(anio_actual, mes_actual, dia, hora, minuto))
+    fecha_consulta_utc = fecha_consulta_peru.astimezone(timezone.utc)
+    if fecha_consulta_peru < ahora_peru:
         raise HTTPException(status_code=400, detail="No se puede registrar una consulta en una fecha/hora pasada.")
 
     # Validar si el médico ya tiene una consulta en ese horario

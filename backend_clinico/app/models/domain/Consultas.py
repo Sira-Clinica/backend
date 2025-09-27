@@ -20,5 +20,6 @@ class Consultas(SQLModel, table=True):
     dia:Optional[int] = Field(default=None)
     hora:Optional[int] = Field(default=None)
     minuto:Optional[int] = Field(default=None)
+    edit_status: bool = Field(default=True)
 
 

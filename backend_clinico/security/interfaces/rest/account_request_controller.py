@@ -129,7 +129,8 @@ def get_all_account_requests(
     """
     if current_user.role_id != 1:
         raise HTTPException(status_code=403, detail="No autorizado")
-    account_requests = db.query(AccountRequest).all()
+    repo = AccountRequestRepository()
+    account_requests = repo.get_not_accepted(db)
     if not account_requests:
         raise HTTPException(status_code=404, detail="No se encontraron solicitudes de cuenta.")
     return [
@@ -140,7 +141,8 @@ def get_all_account_requests(
             "role": req.requested_role or "",
             "area": req.area or "",
             "motivacion": req.motivo or "",
-            "created_at": req.created_at
+            "created_at": req.created_at,
+            "status": req.status
         }
         for req in account_requests
     ]

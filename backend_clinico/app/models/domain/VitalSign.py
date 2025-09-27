@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlmodel import SQLModel, Field, Relationship
 
@@ -17,5 +17,5 @@ class VitalSign(SQLModel, table=True):
     peso: Optional[float]
     genero: Optional[str] = None
     imc: Optional[float] = None
-    fecha_registro: Optional[datetime]= None
+    fecha_registro: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
