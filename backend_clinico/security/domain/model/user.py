@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from sqlmodel import SQLModel, Field
 from sqlalchemy.orm import Mapped
@@ -14,7 +14,7 @@ class User(SQLModel, table=True):
     enabled: Optional[bool] = Field(default=False)
     role_id: Optional[int] = Field(default=None, foreign_key="role.id")
     area: Optional[str] = Field(default=None)
-    ultimo_accesso: Optional[datetime] = Field(default=None)    
+    ultimo_accesso: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
    

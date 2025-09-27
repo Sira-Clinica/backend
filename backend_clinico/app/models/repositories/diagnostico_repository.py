@@ -5,6 +5,7 @@ from backend_clinico.app.models.domain.Diagnostico import Diagnostico
 from backend_clinico.app.models.domain.VitalSign import VitalSign
 
 
+
 def guardar_diagnostico(db: Session, data: dict) -> Diagnostico:
     nuevo = Diagnostico(**data)
     db.add(nuevo)
@@ -70,7 +71,7 @@ def actualizar_ultimo_diagnostico_por_dni(db: Session, dni: str, nuevos_datos: d
     diagnostico = db.exec(
         select(Diagnostico).where(Diagnostico.dni == dni).order_by(Diagnostico.id.desc())
     ).first()
-    
+
     if diagnostico:
         # Actualizar los campos enviados
         for clave, valor in nuevos_datos.items():
@@ -92,6 +93,8 @@ def actualizar_ultimo_diagnostico_por_dni(db: Session, dni: str, nuevos_datos: d
         )
 
         diagnostico.resultado = nuevo_resultado
+        
+       
 
         db.commit()
         db.refresh(diagnostico)
