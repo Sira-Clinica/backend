@@ -14,3 +14,8 @@ class ConsultaInput(SQLModel):
 
 class UpdateStatusConsultaInput(SQLModel):
     status: str
+
+
+
+class UpdateEditStatusConsultaInput(SQLModel):
+    edit_status: bool

@@ -95,6 +95,18 @@ def obtener_consultas_por_medico(db: Session, user_fullname: str):
 def obtener_consulta_por_id(db: Session, id: int) -> Consultas | None:
     return db.get(Consultas, id)
 
+def actualizar_edit_status_consulta(db: Session, consulta_id: int, edit_status: bool) -> Consultas:
+    consulta = db.get(Consultas, consulta_id)
+    if not consulta:
+        raise HTTPException(status_code=404, detail="Consulta no encontrada")
+    
+    consulta.edit_status = edit_status
+    db.commit()
+    db.refresh(consulta)
+    return consulta
+
+
+
 def actualizar_status_consulta(db: Session, dni: str, status: str) -> Consultas:
     consulta = db.exec(
            select(Consultas).where(Consultas.dni == dni).order_by(Consultas.fecha.desc())

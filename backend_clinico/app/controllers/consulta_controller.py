@@ -2,11 +2,12 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlmodel import Session
 
-from backend_clinico.app.Dtos.ConsultaInput import ConsultaInput, UpdateStatusConsultaInput
+from backend_clinico.app.Dtos.ConsultaInput import ConsultaInput, UpdateStatusConsultaInput,UpdateEditStatusConsultaInput
 from backend_clinico.app.models.domain.Consultas import Consultas
 from backend_clinico.app.models.repositories.consulta_repositori import (
    actualizar_status_consulta,
     actualizar_consulta,  
+    actualizar_edit_status_consulta,
     guardar_consulta,
     obtener_consultas_hoy,
     obtener_consultas_medico,
@@ -90,6 +91,23 @@ def actualizar_status(
         raise HTTPException(status_code=403, detail="No autorizado")
     consulta = actualizar_status_consulta(db, consulta_dni, data.status)
     return {"message": "Status actualizado correctamente", "consulta": consulta}
+
+
+
+@consulta_router.patch("/{consulta_id}/edit-status", summary="Actualizar edit_status de una consulta por ID (admin y médico)")
+def actualizar_edit_status_endpoint(
+    consulta_id: int,
+    data: UpdateEditStatusConsultaInput,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Solo administradores (1) y médicos (2) pueden cambiar el edit_status
+    if current_user.role_id not in [1, 2]:
+        raise HTTPException(status_code=403, detail="No autorizado para actualizar edit_status")
+    
+    consulta = actualizar_edit_status_consulta(db, consulta_id, data.edit_status)
+    return {"message": "edit_status actualizado correctamente", "consulta": consulta}
+
 
 
 @consulta_router.get("/hoy", response_model=List[Consultas], summary="Obtener consultas del día de hoy (admin y enfermero)")
