@@ -85,7 +85,10 @@ def crear_usuario_desde_solicitud(
 
     # Buscar la solicitud
     repo = AccountRequestRepository()
+    
     solicitud = repo.get_by_id(db, request_id)
+    solicitud.status = "aceptado"
+
     if not solicitud or solicitud.status != "aceptado":
         raise HTTPException(status_code=400, detail="La solicitud no ha sido aprobada aún")
 
